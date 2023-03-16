@@ -13,90 +13,92 @@
 
 BluetoothSerial SerialBT;
 
-void LedTask(void * parameter );
-const int Number1=25, Number2=13;
-bool state_LED1=false, state_LED2=false;
-String messatge="0";
+int ledN=13;
+bool state_LED1=true, Mon=false;
+String messatge;
 char Nextchar;
 
+void GetM(String&M,bool&s){
+  if(M=="LED"){
+    s=true;
+  }
+  M="";
+}
+void ledControl(bool&s,bool&ll,int&x){
+  if(ll){
+    digitalWrite(x,HIGH);
+    if(s){
+      digitalWrite(x,LOW);
+      s=false;
+      ll=false;
+    }
+  }
+  else{
+    digitalWrite(x,LOW);
+    if(s){
+      digitalWrite(x,HIGH);
+      s=false;
+      ll=true;
+    }
+  }
+}
 
 void setup() {
   Serial.begin(115200);
-  pinMode(Number1,OUTPUT);
-  pinMode(Number2,OUTPUT);
-
-  xTaskCreate
-  (
-    LedTask,
-    "Led Task",
-    40000,
-    NULL,
-    1,
-    NULL
-  );
+  pinMode(ledN,OUTPUT);
 
   SerialBT.begin("ESP32_J"); //Bluetooth device name
   Serial.println("El dispositivo arranco, Ahora puedes unirlo a Bluetooth!");
-
-  digitalWrite(Number1,LOW);
-  digitalWrite(Number2,LOW);
 }
 
 void loop() {
-  if (SerialBT.available()) {
-    Nextchar=SerialBT.read();
-    if(Nextchar!='\n'){
-      messatge+=String(Nextchar);
-    }
-    else{
-    Serial.write(Nextchar);
-    }
-  }
-  
   if (Serial.available()) {
     SerialBT.write(Serial.read());
   }
-  
-  delay(20);
-}
-void LedTask(void * parameter ){
-  for (;;){
-      if(messatge="LED1"){
-        if(!state_LED1){
-          digitalWrite(Number1 , HIGH);
-          state_LED1=true;
-        }
-        else {
-          digitalWrite(Number1 , LOW);
-          state_LED1=false;
-        }
-      }
-      else if(messatge="LED2"){
-        if(!state_LED2){
-          digitalWrite(Number2,HIGH);
-          state_LED1=true;
-          }
-        else {
-          digitalWrite(Number2,LOW);
-          state_LED1=false;
-        }
-      }
-      else if(messatge="LED_ON"){
-        digitalWrite(Number1,HIGH);
-        state_LED1=true;
-        digitalWrite(Number2,HIGH);
-        state_LED2=true;
-      }
-      else if(messatge="LED_OFF"){
-        digitalWrite(Number1,LOW);
-        state_LED1=false;
-        digitalWrite(Number2,LOW);
-        state_LED2=false;
-      }
-      else{}
-
-      delay(20);
+  if (SerialBT.available()) {
+  Nextchar=SerialBT.read();
+  if(Nextchar!='\n'){
+    messatge+=String(Nextchar);
   }
-
-  vTaskDelete( NULL );
+  else{
+    Serial.println(messatge);
+  }
+  }
+  GetM(messatge,Mon);
+  ledControl(state_LED1,Mon,ledN);
+  /*if(messatge="LED1"){
+    if(!state_LED1){
+      digitalWrite(Number1 , HIGH);
+      state_LED1=true;
+    }
+    else {
+      digitalWrite(Number1 , LOW);
+      state_LED1=false;
+    }
+  }
+  else if(messatge="LED2"){
+    if(!state_LED2){
+      digitalWrite(Number2,HIGH);
+      state_LED1=true;
+      }
+    else {
+      digitalWrite(Number2,LOW);
+      state_LED1=false;
+    }
+  }
+  else if(messatge="LED_ON"){
+    digitalWrite(Number1,HIGH);
+    state_LED1=true;
+    digitalWrite(Number2,HIGH);
+    state_LED2=true;
+  }
+  else if(messatge="LED_OFF"){
+    digitalWrite(Number1,LOW);
+    state_LED1=false;
+    digitalWrite(Number2,LOW);
+    state_LED2=false;
+  }
+  else{}
+*/
+  delay(10);
 }
