@@ -58,9 +58,10 @@ void LedTask(void * parameter ){
           digitalWrite(Number1 , HIGH);
           state_LED1=true;
         }
-        else 
+        else {
           digitalWrite(Number1 , LOW);
           state_LED1=false;
+        }
       }
       else if(messatge="LED2"){
         if(state_LED2){
@@ -85,8 +86,8 @@ void LedTask(void * parameter ){
         state_LED2=false;
       }
       else{}
-      
-      delay(20)
+
+      delay(20);
   }
 
   vTaskDelete( NULL );
