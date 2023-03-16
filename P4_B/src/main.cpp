@@ -16,7 +16,7 @@ BluetoothSerial SerialBT;
 void LedTask(void * parameter );
 const int Number1=25, Number2=13;
 bool state_LED1=false, state_LED2=false;
-String messatge;
+String messatge="0";
 char Nextchar;
 
 
@@ -29,32 +29,40 @@ void setup() {
   (
     LedTask,
     "Led Task",
-    20000,
+    40000,
     NULL,
     1,
     NULL
   );
 
-  SerialBT.begin("ESP32test"); //Bluetooth device name
+  SerialBT.begin("ESP32_J"); //Bluetooth device name
   Serial.println("El dispositivo arranco, Ahora puedes unirlo a Bluetooth!");
+
+  digitalWrite(Number1,LOW);
+  digitalWrite(Number2,LOW);
 }
 
 void loop() {
   if (SerialBT.available()) {
     Nextchar=SerialBT.read();
-    if(Nextchar!='\n')
-      messatge += String(Nextchar);
-    else
-      messatge="";
+    if(Nextchar!='\n'){
+      messatge+=String(Nextchar);
+    }
+    else{
     Serial.write(Nextchar);
+    }
   }
+  
+  if (Serial.available()) {
+    SerialBT.write(Serial.read());
+  }
+  
   delay(20);
 }
 void LedTask(void * parameter ){
-
   for (;;){
       if(messatge="LED1"){
-        if(state_LED1){
+        if(!state_LED1){
           digitalWrite(Number1 , HIGH);
           state_LED1=true;
         }
@@ -64,25 +72,25 @@ void LedTask(void * parameter ){
         }
       }
       else if(messatge="LED2"){
-        if(state_LED2){
-          digitalWrite(Number2 , HIGH);
+        if(!state_LED2){
+          digitalWrite(Number2,HIGH);
           state_LED1=true;
           }
         else {
-          digitalWrite(Number2 , LOW);
+          digitalWrite(Number2,LOW);
           state_LED1=false;
         }
       }
       else if(messatge="LED_ON"){
-        digitalWrite(Number1 , HIGH);
+        digitalWrite(Number1,HIGH);
         state_LED1=true;
-        digitalWrite(Number2 , HIGH);
+        digitalWrite(Number2,HIGH);
         state_LED2=true;
       }
       else if(messatge="LED_OFF"){
-        digitalWrite(Number1 , LOW);
+        digitalWrite(Number1,LOW);
         state_LED1=false;
-        digitalWrite(Number2 , LOW);
+        digitalWrite(Number2,LOW);
         state_LED2=false;
       }
       else{}
